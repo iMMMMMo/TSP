@@ -2,6 +2,7 @@ import random
 import math
 import time
 
+
 def generate_coords(choice):
     coords = []
     if choice == 0:
@@ -34,10 +35,10 @@ def generate_coords(choice):
         print("Podaj nazwe pliku: ", end="")
         name = input()
         f = open(f"dane/{name}", "r")
-        
+
         content = f.readlines()
         n = int(content[0])
-        for i in range(1, n+1):
+        for i in range(1, n + 1):
             tmp = content[i].split()
             tmp[0] = int(tmp[0])
             tmp[1] = int(tmp[1])
@@ -45,14 +46,14 @@ def generate_coords(choice):
                 coords.append(tmp)
     else:
         exit()
-    
+
     return coords
 
 
 def create_distance_matrix(n, coords):
     matrix = []
     for _ in range(n):
-        matrix.append([0 for _ in range(n)]) 
+        matrix.append([0 for _ in range(n)])
 
     for i in range(n):
         x1 = coords[i][0]
@@ -61,7 +62,7 @@ def create_distance_matrix(n, coords):
             if i != j:
                 x2 = coords[j][0]
                 y2 = coords[j][1]
-                matrix[i][j] = math.sqrt( ( (x2-x1)**2 ) + ( (y2-y1)**2 ) )
+                matrix[i][j] = math.sqrt(((x2 - x1) ** 2) + ((y2 - y1) ** 2))
     return matrix
 
 
@@ -73,7 +74,7 @@ def TSP(n, vis, curr_point, cnt):
         print(0)
         cost.append(distances[0][curr_point])
         return
-    
+
     shortest = float('inf')
     for i in range(n):
         if i != curr_point and distances[curr_point][i] < shortest and vis[i] == 0:
@@ -98,4 +99,4 @@ start = time.time()
 TSP(len(coords), visited, 0, 0)
 end = time.time()
 print(f"Koszt przejscia: {sum(cost)}")
-print(f"Czas egzekucji algorytmu zachlannego: {(end-start)}")
+print(f"Czas egzekucji algorytmu zachlannego: {(end - start)}")
