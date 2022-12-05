@@ -144,13 +144,13 @@ def ant(dist, phero, position, vis):
     # print("Cumulative sum", cumulative_sum)
     choose = random.random()
     # print("Wylosowana wartosc: ", choose)
-    for i in range(len(cumulative_sum)):
+    for i in range(len(cumulative_sum)-1):
         # print("i: ", i, "points[i]: ", points[i])
         # print(cumulative_sum[i], cumulative_sum[i+1])
         if cumulative_sum[i] >= choose and cumulative_sum[i+1] <= choose:
             # print("dla ",i," wynik to ",cumulative_sum[len(cumulative_sum)-i-1],choose)
             # print("Nastepny punkt: ", points[i])
-            return points[i-1]
+            return points[i]
 
 
 print("Wybierz jedna z opcji:")
