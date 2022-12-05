@@ -100,7 +100,7 @@ def tspColony(n, vis, curr_point, cnt, path, phero):
     vis[curr_point] = 1
     cnt += 1
     if cnt == n:
-        print()
+        print(0)
         cost.append(distances[0][curr_point])
         return path
 
@@ -131,19 +131,26 @@ def ant(dist, phero, position, vis):
             points.append(i)
             # print(nominator,denominator,nominator/denominator)
 
-    cumulative_sum.append(sum(chances))
+    if len(points) == 1:
+        return points[0]
+    
+    # print("Chances: ", chances)
+    # print("Points: ", points)
+    cumulative_sum.append(1)
     for i in range(len(chances) - 1):
         cumulative_sum.append(cumulative_sum[i] - chances[i])
 
+    cumulative_sum.append(0)
+    # print("Cumulative sum", cumulative_sum)
     choose = random.random()
-
-    for i in range(len(cumulative_sum)):
-        if cumulative_sum[len(cumulative_sum) - i - 1] >= choose:
+    # print("Wylosowana wartosc: ", choose)
+    for i in range(len(cumulative_sum)-1):
+        # print("i: ", i, "points[i]: ", points[i])
+        # print(cumulative_sum[i], cumulative_sum[i+1])
+        if cumulative_sum[i] >= choose and cumulative_sum[i+1] <= choose:
             # print("dla ",i," wynik to ",cumulative_sum[len(cumulative_sum)-i-1],choose)
-            print("wynik cum sum", len(cumulative_sum) - i - 1)
-            return
-        else:
-            return 0
+            # print("Nastepny punkt: ", points[i])
+            return points[i]
 
 
 print("Wybierz jedna z opcji:")
