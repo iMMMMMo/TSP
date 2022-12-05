@@ -94,7 +94,7 @@ def TSP(n, vis, curr_point, cnt):
     TSP(n, vis, new_point, cnt)
 
 
-def tspColony(n, vis, curr_point, cnt,path, phero):
+def tspColony(n, vis, curr_point, cnt, path, phero):
     print(curr_point, end=", ")
     path.append(curr_point)
     vis[curr_point] = 1
@@ -105,39 +105,45 @@ def tspColony(n, vis, curr_point, cnt,path, phero):
         return path
 
     shortest = float('inf')
-    for i in range(n):
-        if i!=curr_point and vis[i] == 0:
-            new_point = ant(distances,phero,i,vis)
-            shortest = distances[curr_point][new_point]
+    new_point = ant(distances, phero, curr_point, vis)
+    # print(new_point)
+    shortest = distances[curr_point][new_point]
     cost.append(shortest)
-    tspColony(n, vis, new_point, cnt,path,phero)
+    tspColony(n, vis, new_point, cnt, path, phero)
 
 
-def ant(dist, phero,position, vis):
-    chances=[]
-    cumulative_sum=[]
+def ant(dist, phero, position, vis):
+    chances = []
+    cumulative_sum = []
+    points = []
     for i in range(len(dist)):
-        if i == position or i in vis:
+        if i == position or vis[i]:
             pass
         else:
-            nominator = (phero[position][i] * (1/dist[position][i]))
+            nominator = (phero[position][i] * (1 / dist[position][i]))
             denominator = 0
             for j in range(len(dist)):
                 if j == position:
                     pass
                 else:
-                    denominator += ((phero[position][j] * (1/dist[position][j])))
-            chances.append(nominator/denominator)
-            #print(nominator,denominator,nominator/denominator)
+                    denominator += ((phero[position][j] * (1 / dist[position][j])))
+            chances.append(nominator / denominator)
+            points.append(i)
+            # print(nominator,denominator,nominator/denominator)
+
     cumulative_sum.append(sum(chances))
-    for i in range(len(chances)-1):
-        cumulative_sum.append(cumulative_sum[i]-chances[i])
-        #print(cumulative_sum[i])
+    for i in range(len(chances) - 1):
+        cumulative_sum.append(cumulative_sum[i] - chances[i])
+
     choose = random.random()
+
     for i in range(len(cumulative_sum)):
-        if cumulative_sum[len(cumulative_sum)-i-1]>=choose:
-            #print("dla ",i," wynik to ",cumulative_sum[len(cumulative_sum)-i-1],choose)
-            return i
+        if cumulative_sum[len(cumulative_sum) - i - 1] >= choose:
+            # print("dla ",i," wynik to ",cumulative_sum[len(cumulative_sum)-i-1],choose)
+            print("wynik cum sum", len(cumulative_sum) - i - 1)
+            return
+        else:
+            return 0
 
 
 print("Wybierz jedna z opcji:")
@@ -158,14 +164,16 @@ TSP(len(coords), visited, 0, 0)
 end = time.time()
 print(f"Koszt przejscia: {sum(cost)}")
 print(f"Czas egzekucji algorytmu zachlannego: {(end - start)}")
+
+visited = [0 for _ in range(len(coords))]
 start = time.time()
 tspColony(len(coords), visited, 0, 0, path, pheromones)
-#print(ant(distances,pheromones,0,visited))
+# print(ant(distances,pheromones,0,visited))
 end = time.time()
 print(f"Koszt przejscia: {sum(cost)}")
 print(f"Czas egzekucji algorytmu zachlannego: {(end - start)}")
 
-#ant(distances,pheromones,0)
+# ant(distances,pheromones,0)
 
 # for x in distances:
 #     print(*x)
