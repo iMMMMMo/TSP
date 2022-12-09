@@ -94,22 +94,23 @@ def TSP(n, vis, curr_point, cnt):
     TSP(n, vis, new_point, cnt)
 
 
-def tspColony(n, vis, curr_point, cnt, path, phero):
-    print(curr_point, end=", ")
-    path.append(curr_point)
+def tspColony(n, vis, curr_point, cnt, localPath, phero):
+    #print(curr_point, end=", ")
+    localPath.append(curr_point)
     vis[curr_point] = 1
     cnt += 1
     if cnt == n:
-        print(0)
+        path.append(localPath[0])
         cost.append(distances[0][curr_point])
-        return path
+        print("Sciezka to: ",localPath)
+        return localPath
 
     shortest = float('inf')
     new_point = ant(distances, phero, curr_point, vis)
     # print(new_point)
     shortest = distances[curr_point][new_point]
     cost.append(shortest)
-    tspColony(n, vis, new_point, cnt, path, phero)
+    tspColony(n, vis, new_point, cnt, localPath, phero)
 
 
 def ant(dist, phero, position, vis):
@@ -133,7 +134,7 @@ def ant(dist, phero, position, vis):
 
     if len(points) == 1:
         return points[0]
-    
+
     # print("Chances: ", chances)
     # print("Points: ", points)
     cumulative_sum.append(1)
@@ -144,10 +145,10 @@ def ant(dist, phero, position, vis):
     # print("Cumulative sum", cumulative_sum)
     choose = random.random()
     # print("Wylosowana wartosc: ", choose)
-    for i in range(len(cumulative_sum)-1):
+    for i in range(len(cumulative_sum) - 1):
         # print("i: ", i, "points[i]: ", points[i])
         # print(cumulative_sum[i], cumulative_sum[i+1])
-        if cumulative_sum[i] >= choose and cumulative_sum[i+1] <= choose:
+        if cumulative_sum[i] >= choose and cumulative_sum[i + 1] <= choose:
             # print("dla ",i," wynik to ",cumulative_sum[len(cumulative_sum)-i-1],choose)
             # print("Nastepny punkt: ", points[i])
             return points[i]
@@ -172,9 +173,13 @@ end = time.time()
 print(f"Koszt przejscia: {sum(cost)}")
 print(f"Czas egzekucji algorytmu zachlannego: {(end - start)}")
 
+cost = []
+path = []
+ant_path = []
 visited = [0 for _ in range(len(coords))]
 start = time.time()
-tspColony(len(coords), visited, 0, 0, path, pheromones)
+ant_path = tspColony(len(coords), visited, 0, 0, [], pheromones)
+print("Sciezka heurystyczna to : ", ant_path)
 # print(ant(distances,pheromones,0,visited))
 end = time.time()
 print(f"Koszt przejscia: {sum(cost)}")
