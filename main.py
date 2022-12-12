@@ -94,22 +94,43 @@ def TSP(n, vis, curr_point, cnt):
     TSP(n, vis, new_point, cnt)
 
 
-def tspColony(n, vis, curr_point, cnt, path, phero):
-    print(curr_point, end=", ")
+def pheroUpgrade(phero, path, ro):
+    road=[]
+    for i in range(len(path)-1):
+        #print(i, path[i], distances[path[i]] [path[i+1]])
+        road.append(distances[path[i]] [path[i+1]])
+
+    phero[path[i]][path[i+1]] += 1/(sum(road))
+    phero[path[i+1]][path[i]] += 1/(sum(road))
+
+    for i in range(len(phero)):
+        for j in range(len(phero)):
+            phero[i][j]*=(1-ro)
+
+    #print(phero)
+    return phero
+
+
+def tspColony(n, vis, curr_point, cnt, phero):
+    #print(curr_point, end=", ")
+
     path.append(curr_point)
     vis[curr_point] = 1
     cnt += 1
     if cnt == n:
-        print(0)
+        path.append(path[0])
         cost.append(distances[0][curr_point])
+        #print("Sciezka to: ", path)
+        phero = pheroUpgrade(phero,path, 0.3)
+        #print(phero)
         return path
-
-    shortest = float('inf')
-    new_point = ant(distances, phero, curr_point, vis)
-    # print(new_point)
-    shortest = distances[curr_point][new_point]
-    cost.append(shortest)
-    tspColony(n, vis, new_point, cnt, path, phero)
+    else:
+        shortest = float('inf')
+        new_point = ant(distances, phero, curr_point, vis)
+        # print(new_point)
+        shortest = distances[curr_point][new_point]
+        cost.append(shortest)
+        tspColony(n, vis, new_point, cnt, phero)
 
 
 def ant(dist, phero, position, vis):
@@ -133,7 +154,7 @@ def ant(dist, phero, position, vis):
 
     if len(points) == 1:
         return points[0]
-    
+
     # print("Chances: ", chances)
     # print("Points: ", points)
     cumulative_sum.append(1)
@@ -144,10 +165,10 @@ def ant(dist, phero, position, vis):
     # print("Cumulative sum", cumulative_sum)
     choose = random.random()
     # print("Wylosowana wartosc: ", choose)
-    for i in range(len(cumulative_sum)-1):
+    for i in range(len(cumulative_sum) - 1):
         # print("i: ", i, "points[i]: ", points[i])
         # print(cumulative_sum[i], cumulative_sum[i+1])
-        if cumulative_sum[i] >= choose and cumulative_sum[i+1] <= choose:
+        if cumulative_sum[i] >= choose and cumulative_sum[i + 1] <= choose:
             # print("dla ",i," wynik to ",cumulative_sum[len(cumulative_sum)-i-1],choose)
             # print("Nastepny punkt: ", points[i])
             return points[i]
@@ -163,7 +184,7 @@ coords = generate_coords(choice)
 distances = create_distance_matrix(len(coords), coords)
 pheromones = pheromones_graph(distances)
 
-path = []
+
 cost = []
 visited = [0 for _ in range(len(coords))]
 start = time.time()
@@ -172,9 +193,16 @@ end = time.time()
 print(f"Koszt przejscia: {sum(cost)}")
 print(f"Czas egzekucji algorytmu zachlannego: {(end - start)}")
 
-visited = [0 for _ in range(len(coords))]
+
+path = []
 start = time.time()
-tspColony(len(coords), visited, 0, 0, path, pheromones)
+for i in range(10):
+    visited = [0 for _ in range(len(coords))]
+    cost = []
+    tspColony(len(coords), visited, 0, 0, pheromones)
+    #print("droga z funkcji to: ", path)
+    #print("phero to : ", pheromones)
+#print("Sciezka heurystyczna to : ", ant_path)
 # print(ant(distances,pheromones,0,visited))
 end = time.time()
 print(f"Koszt przejscia: {sum(cost)}")
