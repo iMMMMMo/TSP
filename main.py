@@ -194,13 +194,15 @@ print(f"Koszt przejscia: {sum(cost)}")
 print(f"Czas egzekucji algorytmu zachlannego: {(end - start)}")
 
 
-path = []
+
 start = time.time()
 for i in range(10):
+    cost = []
+    path = []
     visited = [0 for _ in range(len(coords))]
     cost = []
     tspColony(len(coords), visited, 0, 0, pheromones)
-    #print("droga z funkcji to: ", path)
+    print("droga z funkcji to: ", path)
     #print("phero to : ", pheromones)
 #print("Sciezka heurystyczna to : ", ant_path)
 # print(ant(distances,pheromones,0,visited))
