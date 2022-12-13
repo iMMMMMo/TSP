@@ -44,7 +44,7 @@ def generate_coords(choice):
     else:
         exit()
 
-    return coords
+    return coords, n
 
 
 def create_distance_matrix(n, coords):
@@ -95,7 +95,7 @@ def TSP(n, vis, curr_point, cnt):
 
 
 def tspColony(n, vis, curr_point, cnt, localPath, phero):
-    #print(curr_point, end=", ")
+    # print(curr_point, end=", ")
     localPath.append(curr_point)
     vis[curr_point] = 1
     cnt += 1
@@ -152,18 +152,19 @@ def ant(dist, phero, position, vis):
             # print("dla ",i," wynik to ",cumulative_sum[len(cumulative_sum)-i-1],choose)
             # print("Nastepny punkt: ", points[i])
             return points[i]
-        elif i == len(cumulative_sum)-2 and cumulative_sum[i] >= choose and cumulative_sum[i + 1] <= choose:
+        elif i == len(cumulative_sum) - 2 and cumulative_sum[i] >= choose and cumulative_sum[i + 1] <= choose:
             return points[i]
+
 
 def updatePheromones(phero, evapo, path, cost):
     for i in range(1, len(path)):
-        phero[path[i]][path[i-1]] += 1/sum(cost)
-        phero[path[i-1]][path[i]] += 1/sum(cost)
+        phero[path[i]][path[i - 1]] += 1 / sum(cost)
+        phero[path[i - 1]][path[i]] += 1 / sum(cost)
 
     for i in range(len(phero)):
         for j in range(len(phero)):
-                phero[i][j] *= evapo
-            
+            phero[i][j] *= evapo
+
     # for i in range(len(path)-1):
     #     for j in range(len(phero)):
     #         for k in range(len(phero)):
@@ -181,7 +182,7 @@ print("1 - jesli chcesz sam wpisac wspolrzedne")
 print("2 - wczytaj wspolrzedne z pliku")
 choice = int(input())
 
-coords = generate_coords(choice)
+coords, n = generate_coords(choice)
 # print(coords)
 distances = create_distance_matrix(len(coords), coords)
 pheromones = pheromones_graph(distances)
@@ -195,20 +196,20 @@ end = time.time()
 print(f"Koszt przejscia: {sum(cost)}")
 print(f"Czas egzekucji algorytmu zachlannego: {(end - start)}")
 
-
 i = 1
-ants = 200
-evapo = 0.3
+ants = 1000
+evapo = 0.1
 start = time.time()
 while i <= ants:
+    starting_point = random.randint(0, n-1)
     cost = []
     path = []
     ant_path = []
     visited = [0 for _ in range(len(coords))]
     # print(f'i: {i}, feromony: {pheromones}')
-    tspColony(len(coords), visited, 0, 0, ant_path, pheromones)
+    tspColony(len(coords), visited, starting_point, 0, ant_path, pheromones)
     updatePheromones(pheromones, evapo, ant_path, cost)
-    #print(f'przejscie nr: {i}, koszt: {sum(cost)}')
+    # print(f'przejscie nr: {i}, koszt: {sum(cost)}')
     # print("Sciezka heurystyczna to : ", ant_path)
     # print()
     i += 1
