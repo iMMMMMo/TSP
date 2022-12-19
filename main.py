@@ -33,7 +33,7 @@ def generate_coords(choice):
     elif choice == 2:
         print("Podaj nazwe pliku: ", end="")
         name = input()
-        f = open(f"dane/{name}", "r")
+        f = open(f"../dane/{name}", "r")
 
         content = f.readlines()
         n = int(content[0])
@@ -102,12 +102,11 @@ def tspColony(n, vis, curr_point, cnt, localPath, phero):
     vis[curr_point] = 1
     cnt += 1
     if cnt == n:
-        path.append(localPath[0])
+        localPath.append(localPath[0])
         cost.append(distances[0][curr_point])
         # print("Sciezka to: ",localPath)
         return
 
-    shortest = float('inf')
     new_point = ant(distances, phero, curr_point, vis)
     # print(new_point)
     cost.append(distances[curr_point][new_point])
@@ -202,13 +201,13 @@ print(f"Czas egzekucji algorytmu zachlannego: {(end - start)}")
 
 i = 1
 ants = 500
-evapo = 0.3
+evapo = 0.1
 start = time.time()
 final_costs = []
 while i <= ants:
     starting_points = []
     final_paths = []
-    while len(starting_points) < 8:
+    while len(starting_points) < 15:
         starting_point = random.randint(0, n-1)
         if starting_point not in starting_points:
             starting_points.append(starting_point)
@@ -221,14 +220,21 @@ while i <= ants:
         ant_path = []
         visited = [0 for _ in range(len(coords))]
         tspColony(len(coords), visited, s, 0, ant_path, pheromones)
+        print(ant_path, cost)
         final_paths.append([ant_path, sum(cost)])
     
     # print(f'przed posortowaniem: {final_paths}')
     final_paths = sorted(final_paths, key=lambda x: x[1])
     # print(f'po posortowaniu: {final_paths}')
+
     final_costs.append(final_paths[0][1])
     updatePheromones(pheromones, evapo, final_paths[0][0], final_paths[0][1])
     print(f'przejscie nr: {i}, koszt: {final_paths[0][1]}')
+    
+    if final_paths[0][1] <= 7600:
+        print(f"Sciezka przejscia nr {i}: {sorted(final_paths[0][0])}")
+        print(f"Dlugosc setu: {len(set(final_paths[0][0]))}")
+        
     
     # print("Sciezka heurystyczna to : ", ant_path)
     # print()
