@@ -33,7 +33,7 @@ def generate_coords(choice):
     elif choice == 2:
         print("Podaj nazwe pliku: ", end="")
         name = input()
-        f = open(f"../dane/{name}", "r")
+        f = open(f"dane/{name}", "r")
 
         content = f.readlines()
         n = int(content[0])
@@ -103,7 +103,7 @@ def tspColony(n, vis, curr_point, cnt, localPath, phero):
     cnt += 1
     if cnt == n:
         localPath.append(localPath[0])
-        cost.append(distances[0][curr_point])
+        cost.append(distances[curr_point][localPath[0]])
         # print("Sciezka to: ",localPath)
         return
 
@@ -200,11 +200,13 @@ print(f"Koszt przejscia: {sum(cost)}")
 print(f"Czas egzekucji algorytmu zachlannego: {(end - start)}")
 
 i = 1
-ants = 500
-evapo = 0.1
+ants = 1000
+evapo = 0.05
 start = time.time()
 final_costs = []
-while i <= ants:
+prev_cost = 0
+exit_cnt = 0
+while True:
     starting_points = []
     final_paths = []
     while len(starting_points) < 15:
@@ -220,7 +222,7 @@ while i <= ants:
         ant_path = []
         visited = [0 for _ in range(len(coords))]
         tspColony(len(coords), visited, s, 0, ant_path, pheromones)
-        print(ant_path, cost)
+        #print(ant_path, cost)
         final_paths.append([ant_path, sum(cost)])
     
     # print(f'przed posortowaniem: {final_paths}')
@@ -230,10 +232,17 @@ while i <= ants:
     final_costs.append(final_paths[0][1])
     updatePheromones(pheromones, evapo, final_paths[0][0], final_paths[0][1])
     print(f'przejscie nr: {i}, koszt: {final_paths[0][1]}')
+    if abs(final_paths[0][1]-prev_cost) < 0.00001:
+        exit_cnt += 1
+        if exit_cnt == 10:
+            break
+    else:
+        exit_cnt = 0
+    prev_cost = final_paths[0][1]
     
-    if final_paths[0][1] <= 7600:
-        print(f"Sciezka przejscia nr {i}: {sorted(final_paths[0][0])}")
-        print(f"Dlugosc setu: {len(set(final_paths[0][0]))}")
+    #if final_paths[0][1] <= 7600:
+        #print(f"Sciezka przejscia nr {i}: {sorted(final_paths[0][0])}")
+        #print(f"Dlugosc setu: {len(set(final_paths[0][0]))}")
         
     
     # print("Sciezka heurystyczna to : ", ant_path)
@@ -244,7 +253,6 @@ end = time.time()
 print(f"Koszt przejscia: {min(final_costs)}")
 print(f"Czas egzekucji algorytmu mrowkowego: {(end - start)}")
 
-# ant(distances,pheromones,0)
 
 # for x in distances:
 #     print(*x)
