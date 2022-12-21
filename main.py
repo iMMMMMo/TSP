@@ -20,6 +20,7 @@ def generate_coords(choice):
             tmp = [random.randint(a, b), random.randint(a, b)]
             if tmp not in coords:
                 coords.append(tmp)
+
     elif choice == 1:
         print("Podaj ilosc wierzcholkow: ", end="")
         n = int(input())
@@ -30,6 +31,7 @@ def generate_coords(choice):
             tmp[1] = int(tmp[1])
             if tmp not in coords:
                 coords.append(tmp)
+
     elif choice == 2:
         print("Podaj nazwe pliku: ", end="")
         name = input()
@@ -46,7 +48,8 @@ def generate_coords(choice):
     else:
         exit()
 
-    return coords, n
+
+    return coords, len(coords)
 
 
 def create_distance_matrix(n, coords):
@@ -79,11 +82,11 @@ def pheromones_graph(matrix):
 
 
 def TSP(cost, n, vis, curr_point, cnt):
-    print(curr_point, end=", ")
+    # print(curr_point, end=", ")
     vis[curr_point] = 1
     cnt += 1
     if cnt == n:
-        print(0)
+        # print(0)
         cost.append(distances[0][curr_point])
         return
 
@@ -102,12 +105,11 @@ def tspColony(n, vis, curr_point, cnt, localPath, phero):
     vis[curr_point] = 1
     cnt += 1
     if cnt == n:
-        path.append(localPath[0])
-        cost.append(distances[0][curr_point])
+        localPath.append(localPath[0])
+        cost.append(distances[curr_point][localPath[0]])
         # print("Sciezka to: ",localPath)
         return
 
-    shortest = float('inf')
     new_point = ant(distances, phero, curr_point, vis)
     # print(new_point)
     cost.append(distances[curr_point][new_point])
@@ -187,28 +189,29 @@ print("2 - wczytaj wspolrzedne z pliku")
 choice = int(input())
 
 coords, n = generate_coords(choice)
-# print(coords)
 distances = create_distance_matrix(len(coords), coords)
 pheromones = pheromones_graph(distances)
 
-path = []
-cost = []
+greedy_path = []
+greedy_cost = []
 visited = [0 for _ in range(len(coords))]
-start = time.time()
-TSP(cost, len(coords), visited, 0, 0)
-end = time.time()
-print(f"Koszt przejscia: {sum(cost)}")
-print(f"Czas egzekucji algorytmu zachlannego: {(end - start)}")
+greedy_start = time.time()
+TSP(greedy_cost, len(coords), visited, 0, 0)
+greedy_end = time.time()
 
-i = 1
-ants = 500
-evapo = 0.3
-start = time.time()
+evapo = 0.01
+number_of_starting_points = 1
+
 final_costs = []
-while i <= ants:
+i = 1
+prev_cost = 0
+exit_cnt = 0
+start = time.time()
+timeout = time.time() + 60*5
+while True:
     starting_points = []
     final_paths = []
-    while len(starting_points) < 8:
+    while len(starting_points) < number_of_starting_points:
         starting_point = random.randint(0, n-1)
         if starting_point not in starting_points:
             starting_points.append(starting_point)
@@ -217,28 +220,48 @@ while i <= ants:
     # print(starting_points)
     for s in starting_points:
         cost = []
-        path = []
         ant_path = []
         visited = [0 for _ in range(len(coords))]
         tspColony(len(coords), visited, s, 0, ant_path, pheromones)
+        # print(ant_path, cost)
         final_paths.append([ant_path, sum(cost)])
     
     # print(f'przed posortowaniem: {final_paths}')
     final_paths = sorted(final_paths, key=lambda x: x[1])
     # print(f'po posortowaniu: {final_paths}')
+
     final_costs.append(final_paths[0][1])
     updatePheromones(pheromones, evapo, final_paths[0][0], final_paths[0][1])
     print(f'przejscie nr: {i}, koszt: {final_paths[0][1]}')
-    
-    # print("Sciezka heurystyczna to : ", ant_path)
-    # print()
+
+    # WARUNKI STOPU
+    # 10x ta sama wartosc
+    if abs(final_paths[0][1]-prev_cost) < 0.00001:
+        exit_cnt += 1
+        if exit_cnt == 10:
+            break
+    else:
+        exit_cnt = 0
+    prev_cost = final_paths[0][1]
+
+    # 5 minut
+    if time.time() > timeout:
+        break
+
+    # if final_paths[0][1] <= 7600:
+        #print(f"Sciezka przejscia nr {i}: {sorted(final_paths[0][0])}")
+        #print(f"Dlugosc setu: {len(set(final_paths[0][0]))}")
     i += 1
 # print(ant(distances,pheromones,0,visited))
 end = time.time()
-print(f"Koszt przejscia: {min(final_costs)}")
-print(f"Czas egzekucji algorytmu mrowkowego: {(end - start)}")
+print(f"\n-- ALGORYTM MROWKOWY --")
+print(f"Koszt przejscia: {round(min(final_costs), 2)}")
+print(f"Czas egzekucji: {(end - start)}")
 
-# ant(distances,pheromones,0)
+print(f"\n-- ALGORYTM ZACHLANNY --")
+print(f"Koszt przejscia: {round(sum(greedy_cost), 2)}")
+print(f"Czas egzekucji: {(greedy_end - greedy_start)}")
+
 
 # for x in distances:
 #     print(*x)
