@@ -2,6 +2,7 @@ import random
 import math
 import time
 import sys
+import matplotlib.pyplot as plt
 
 sys.setrecursionlimit(10**6)
 
@@ -83,10 +84,12 @@ def pheromones_graph(matrix):
 
 def TSP(cost, n, vis, curr_point, cnt):
     # print(curr_point, end=", ")
+    greedy_path.append(curr_point)
     vis[curr_point] = 1
     cnt += 1
     if cnt == n:
         # print(0)
+        greedy_path.append(greedy_path[0])
         cost.append(distances[0][curr_point])
         return
 
@@ -131,7 +134,7 @@ def ant(dist, phero, position, vis):
         if i == position or vis[i]:
             pass
         else:
-            nominator = (phero[position][i] * (1 / dist[position][i]))
+            nominator = (10*phero[position][i] * (1 / dist[position][i]))
             chances.append(nominator / denominator)
             points.append(i)
             # print(nominator,denominator,nominator/denominator)
@@ -162,8 +165,9 @@ def ant(dist, phero, position, vis):
 def updatePheromones(phero, evapo, path, cost):
 
     for i in range(len(phero)):
-        for j in range(len(phero)):
+        for j in range(i, len(phero)):
                 phero[i][j] *= (1-evapo)
+                phero[j][i] *= (1-evapo)
         
     for i in range(1, len(path)):
         phero[path[i]][path[i-1]] += 1/cost
@@ -192,6 +196,18 @@ coords, n = generate_coords(choice)
 distances = create_distance_matrix(len(coords), coords)
 pheromones = pheromones_graph(distances)
 
+x_axis = []
+y_axis = []
+for i in range(len(coords)):
+    x_axis.append(coords[i][0])
+    y_axis.append(coords[i][1])
+
+plt.plot(x_axis,y_axis,'.')
+plt.xlabel('oś x')
+plt.ylabel('oś y')
+plt.title('rozmieszczenie punktów')
+plt.show()
+
 greedy_path = []
 greedy_cost = []
 visited = [0 for _ in range(len(coords))]
@@ -199,8 +215,18 @@ greedy_start = time.time()
 TSP(greedy_cost, len(coords), visited, 0, 0)
 greedy_end = time.time()
 
-evapo = 0.01
-number_of_starting_points = 1
+#print(f"ścieżka zachłanna to: {greedy_path}")
+g_x_axis = [coords[greedy_path[i]][0] for i in range(len(coords))]
+g_y_axis = [coords[greedy_path[i]][1] for i in range(len(coords))]
+
+plt.plot(g_x_axis,g_y_axis)
+plt.xlabel('oś x')
+plt.ylabel('oś y')
+plt.title('Algorytm zachłanny')
+plt.show()
+
+evapo = 0.1
+number_of_starting_points = 3
 
 final_costs = []
 i = 1
@@ -262,6 +288,14 @@ print(f"\n-- ALGORYTM ZACHLANNY --")
 print(f"Koszt przejscia: {round(sum(greedy_cost), 2)}")
 print(f"Czas egzekucji: {(greedy_end - greedy_start)}")
 
+a_x_axis = [coords[i][0] for i in range(len(coords))]
+a_y_axis = [coords[i][1] for i in range(len(coords))]
+
+plt.plot(a_x_axis,a_y_axis)
+plt.xlabel('oś x')
+plt.ylabel('oś y')
+plt.title('Algorytm mrowkowy')
+plt.show()
 
 # for x in distances:
 #     print(*x)
