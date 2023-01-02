@@ -215,9 +215,9 @@ greedy_start = time.time()
 TSP(greedy_cost, len(coords), visited, 0, 0)
 greedy_end = time.time()
 
-#print(f"ścieżka zachłanna to: {greedy_path}")
-g_x_axis = [coords[greedy_path[i]][0] for i in range(len(coords))]
-g_y_axis = [coords[greedy_path[i]][1] for i in range(len(coords))]
+# print(f"ścieżka zachłanna to: {greedy_path}")
+g_x_axis = [coords[greedy_path[i]][0] for i in range(len(greedy_path))]
+g_y_axis = [coords[greedy_path[i]][1] for i in range(len(greedy_path))]
 
 plt.plot(g_x_axis,g_y_axis)
 plt.xlabel('oś x')
@@ -225,9 +225,11 @@ plt.ylabel('oś y')
 plt.title('Algorytm zachłanny')
 plt.show()
 
-evapo = 0.1
-number_of_starting_points = 3
+evapo = 0.01
+number_of_starting_points = 15
 
+smallest_cost = float('inf')
+smallest_cost_path = []
 final_costs = []
 i = 1
 prev_cost = 0
@@ -260,6 +262,10 @@ while True:
     updatePheromones(pheromones, evapo, final_paths[0][0], final_paths[0][1])
     print(f'przejscie nr: {i}, koszt: {final_paths[0][1]}')
 
+    if final_paths[0][1] < smallest_cost:
+        smallest_cost = final_paths[0][1]
+        smallest_cost_path = final_paths[0][0]
+
     # WARUNKI STOPU
     # 10x ta sama wartosc
     if abs(final_paths[0][1]-prev_cost) < 0.00001:
@@ -288,8 +294,9 @@ print(f"\n-- ALGORYTM ZACHLANNY --")
 print(f"Koszt przejscia: {round(sum(greedy_cost), 2)}")
 print(f"Czas egzekucji: {(greedy_end - greedy_start)}")
 
-a_x_axis = [coords[i][0] for i in range(len(coords))]
-a_y_axis = [coords[i][1] for i in range(len(coords))]
+# print(f"Sciezka mrowkowa: {smallest_cost_path}")
+a_x_axis = [coords[smallest_cost_path[i]][0] for i in range(len(smallest_cost_path))]
+a_y_axis = [coords[smallest_cost_path[i]][1] for i in range(len(smallest_cost_path))]
 
 plt.plot(a_x_axis,a_y_axis)
 plt.xlabel('oś x')
